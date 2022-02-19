@@ -1,7 +1,7 @@
 // this file contains all the questions that will be displayed.
 // in future, could we use a database for this?
 
-const qBank = [
+const EasyQbank = [
     {
         question: "Who founded Apple Computers?",
         answers: ["Steve Jobs", "Bill Gates", "Elon Musk", "Jeff Bezos"],
@@ -17,4 +17,5 @@ const qBank = [
 ];
 
 // n = 2 to export 2 random questions
-export default (n = 2) => Promise.resolve(qBank.sort(() => 0.5 - Math.random()).slice(0, n));
+// eslint-disable-next-line import/no-anonymous-default-export
+export default (n = 5) => EasyQbank.sort(() => 0.5 - Math.random()).slice(0, n);

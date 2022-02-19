@@ -1,8 +1,9 @@
 import React, {Component} from "react";
 import ReactDOM from "react-dom";
 import "./style.css";
-import questionAPI from './question/EasyQbank';
+import QuestionAPI from "./question/QuestionAPI";
 import QuestionBox from './components/QuestionBox';
+import LevelSelection from "./components/levelSelectionBox";
 import Result from './components/ResultBox';
 
 class Quiz extends Component {
@@ -11,34 +12,43 @@ class Quiz extends Component {
         this.state = {
             questionBank: [],
             score: 0,
-            response: 0
+            responses: 0,
+            level: "",
         };
     }
 
     // function to get question from ./question
-    getQuestions = () => {
-        questionAPI().then(question => {
-            this.setState({questionBank: question});
+    getQuestions = (level) => {
+            let question = QuestionAPI(level)
+            return question;
+    };
+
+    selectedLevel = (level) => {
+        this.setState({
+            level: level,
+            questionBank: this.getQuestions(level),
         });
     };
 
     // set state back to default and call function
     playAgain = () => {
-        this.getQuestions();
-        this.setState({score: 0, response: 0});
-    };
+        // function for playing  again
+        this.setState({
+          score: 0,
+          level: "",
+          responses: 0,
+        });
+      };
 
     //Function to compute scores
     computeAnswer = (answer, correctAns) => {
         if (answer === correctAns) {
             this.setState({
-                score: this.state.score + 1
+                score: this.state.score + 1,
             });
         }
         this.setState({
-            responses: this.state.responses < 5
-                ? this.state.responses +1
-                : 5
+            responses: this.state.responses < 5 ? this.state.responses +1 : 5,
         });
     };
 
@@ -48,14 +58,40 @@ class Quiz extends Component {
     }
 
     render(){
-        return (<div className="container">
+        return (
+        <div className="container">
             <div className="title">
                 React Quiz App
             </div>
 
-            {this.state.questionBank.length > 0 &&
+            {this.state.level !== "" 
+                ? (
+                <div className="levelLable">
+                    <b>Level :</b>
+                    {this.state.level}
+                    <div className="timer">{this.state.count}</div>
+                    <hr />
+                </div>
+                ) 
+                : null}
+
+            {this.state.level === "" ? (
+            <LevelSelection selectedLevel={this.selectedLevel} />
+            ) : null}
+
+            {this.state.level !== "" &&
+            this.state.questionBank.length > 0 &&
             this.state.responses < 5 &&
-            this.state.questionBank.map(({question, answers, correct, questionId}) => <QuestionBox question={question} options={answers} key={questionId} selected={answer => this.computeAnswer(answer, correct)}/>)}
+            this.state.questionBank.map(
+                ({question, answers, correct, questionId}) => (
+                    <QuestionBox 
+                        question={question} 
+                        options={answers} 
+                        key={questionId} 
+                        selected={answer => this.computeAnswer(answer, correct)}
+                    />
+                    )
+                    )}
 
             {
                 this.state.responses === 5
@@ -64,7 +100,7 @@ class Quiz extends Component {
                     :null
             }
 
-        </div>)
+        </div>);
     }
 
 }
